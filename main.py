@@ -86,8 +86,8 @@ async def run_live_bot():
     
     try:
         from metaapi_sdk import MetaApi
-    except ImportError:
-        logger.error("MetaApi SDK not installed. Check requirements.txt")
+    except Exception as e:
+        logger.error(f"Failed to load MetaApi SDK: {e}")
         return
 
     if not META_API_TOKEN or not MT4_ACCOUNT_ID:
