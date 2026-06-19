@@ -11,7 +11,6 @@ TRADING_MODE = os.environ.get("TRADING_MODE", "LIVE")
 META_API_TOKEN = os.environ.get("META_API_TOKEN", "")
 MT4_ACCOUNT_ID = os.environ.get("MT4_ACCOUNT_ID", "")
 MT4_SYMBOL = "USOIL"
-MAGIC_NUMBER = 777777 # Kept for reference, but removed from order execution
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -84,8 +83,9 @@ async def run_live_bot():
     logger.info("Initializing Live Loser Bot Architecture for USOIL on Railway...")
     orchestrator = LoserBotOrchestrator()
     
+    # FIXED: Using metaapi_cloud_sdk instead of metaapi_sdk
     try:
-        from metaapi_sdk import MetaApi
+        from metaapi_cloud_sdk import MetaApi
     except Exception as e:
         logger.error(f"Failed to load MetaApi SDK: {e}")
         return
@@ -137,7 +137,6 @@ async def run_live_bot():
                     logger.warning(f"AGENT TRIGGERED: {decision['reason']}")
                     logger.warning(f"Balance: ${current_balance}. Dynamic Lots: {lots}. Executing {decision['action']} {MT4_SYMBOL} at {current_price}")
                     
-                    # REMOVED magic=MAGIC_NUMBER to fix SDK keyword argument error
                     if decision["action"] == "BUY":
                         await connection.create_market_buy_order(MT4_SYMBOL, lots, sl, tp)
                     elif decision["action"] == "SELL":
