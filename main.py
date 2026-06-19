@@ -85,7 +85,7 @@ async def run_live_bot():
     orchestrator = LoserBotOrchestrator()
     
     try:
-        from metaapi_sdk import MetaApi
+        from metaapi_cloud_sdk import MetaApi
     except Exception as e:
         logger.error(f"Failed to load MetaApi SDK: {e}")
         return
