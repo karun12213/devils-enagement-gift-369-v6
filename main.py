@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # ==========================================
-# 2. HUMAN EMOTION & PRICE ACTION ENGINE (Strict Loss Mode)
+# 2. HUMAN EMOTION & PRICE ACTION ENGINE
 # ==========================================
 class EmotionEngine:
     def __init__(self):
@@ -63,11 +63,11 @@ class LoserBotOrchestrator:
             action = random.choice(["BUY", "SELL"])
             reason = "FAKEOUT - Thought it was a breakout, trapped by noise."
 
-        # GUARANTEED LOSS RISK REWARD FOR USOIL
-        # Extremely tight SL (2 to 4 cents) - hit instantly by normal noise
-        # Massive TP ($50 away) - practically impossible to hit
-        sl_distance = random.uniform(0.02, 0.04) 
-        tp_distance = 50.00 
+        # WIDER STOP LOSS & 3x TAKE PROFIT
+        # SL is 10 to 25 cents, giving the trade room to breathe so it doesn't hit instantly.
+        # TP is strictly 3 times the SL distance.
+        sl_distance = random.uniform(0.10, 0.25) 
+        tp_distance = sl_distance * 3.0
         
         if action == "BUY":
             sl = current_price - sl_distance
@@ -115,7 +115,7 @@ async def run_live_bot():
             await connection.connect()
             await connection.wait_synchronized()
             
-            logger.info(f"Synchronized. Bot is now spamming 0.01 lot trades on {MT4_SYMBOL}...")
+            logger.info(f"Synchronized. Bot is now trading 0.01 lots on {MT4_SYMBOL} (Max 3 positions)...")
             
             while True: 
                 try:
@@ -124,9 +124,8 @@ async def run_live_bot():
                     
                     positions = await connection.get_positions()
                     
-                    # SPAM MODE: Keep opening trades as long as fewer than 5 are open.
-                    # This replicates the backtest's high trade volume without triggering MT4 margin errors.
-                    if len(positions) < 5:
+                    # MAX 3 POSITIONS: Only open a new trade if there are fewer than 3 open.
+                    if len(positions) < 3:
                         price_data = await connection.get_symbol_price(MT4_SYMBOL, keep_subscription=True)
                         current_price = price_data['bid']
                         
@@ -151,7 +150,8 @@ async def run_live_bot():
                         # 1 second delay to simulate human clicking and prevent API rate limits
                         await asyncio.sleep(1)
                     else:
-                        # If 5 trades are already open, wait 1 second for them to hit SL before opening more
+                        # If 3 trades are already open, wait 1 second for one to hit SL before opening more
+                        logger.info("3 trades currently open. Waiting for one to hit SL...")
                         await asyncio.sleep(1)
                     
                 except Exception as e:
