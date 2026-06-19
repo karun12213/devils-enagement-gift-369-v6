@@ -63,11 +63,11 @@ class LoserBotOrchestrator:
             action = random.choice(["BUY", "SELL"])
             reason = "FAKEOUT - Thought it was a breakout, trapped by noise."
 
-        # WIDER STOP LOSS & 3x TAKE PROFIT
-        # SL is 10 to 25 cents, giving the trade room to breathe so it doesn't hit instantly.
-        # TP is strictly 3 times the SL distance.
-        sl_distance = random.uniform(0.10, 0.25) 
-        tp_distance = sl_distance * 3.0
+        # RETAIL LOSER RISK REWARD FOR USOIL
+        # Huge SL (30 to 50 cents) - holds onto losers
+        # Tiny TP (2 to 5 cents) - cuts winners short for peanuts
+        sl_distance = random.uniform(0.30, 0.50) 
+        tp_distance = random.uniform(0.02, 0.05) 
         
         if action == "BUY":
             sl = current_price - sl_distance
