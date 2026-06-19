@@ -83,7 +83,6 @@ async def run_live_bot():
     logger.info("Initializing Live Loser Bot Architecture for USOIL on Railway...")
     orchestrator = LoserBotOrchestrator()
     
-    # FIXED: Using metaapi_cloud_sdk instead of metaapi_sdk
     try:
         from metaapi_cloud_sdk import MetaApi
     except Exception as e:
@@ -122,7 +121,8 @@ async def run_live_bot():
                         await asyncio.sleep(1) 
                         continue
 
-                    price_data = await connection.get_symbol_price(MT4_SYMBOL)
+                    # FIXED: Added keep_subscription=True to prevent "Specified symbol price not found"
+                    price_data = await connection.get_symbol_price(MT4_SYMBOL, keep_subscription=True)
                     current_price = price_data['bid']
                     
                     historical_prices = [current_price * (1 + random.uniform(-0.001, 0.001)) for _ in range(10)]
