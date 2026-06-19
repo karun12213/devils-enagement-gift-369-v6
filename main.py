@@ -85,7 +85,7 @@ async def run_live_bot():
     orchestrator = LoserBotOrchestrator()
     
     try:
-        from metaapi_cloud_sdk import MetaApi
+        from metaapi_sdk import MetaApi
     except Exception as e:
         logger.error(f"Failed to load MetaApi SDK: {e}")
         return
@@ -109,7 +109,9 @@ async def run_live_bot():
             await connection.wait_synchronized()
             
             logger.info(f"Synchronized. Bot is now relentlessly losing money on {MT4_SYMBOL} at maximum speed.")
-            await connection.subscribe_to_market_data(MT4_SYMBOL)
+            
+            # REMOVED: await connection.subscribe_to_market_data(MT4_SYMBOL) 
+            # RPC connections handle this automatically when calling get_symbol_price()
             
             while True: 
                 try:
